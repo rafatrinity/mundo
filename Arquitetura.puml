@@ -1,0 +1,209 @@
+@startuml ArquiteturaThreeJSJogo
+
+!theme materia
+
+' Classes Principais de Orquestração e Core Three.js
+class Experience {
+  +camera: Camera
+  +renderer: Renderer
+  +world: World
+  +scene: THREE.Scene
+  +time: Time
+  +sizes: Sizes
+  +resources: Resources
+  +config: Config
+  +update()
+}
+
+class Camera {
+  +instance: THREE.PerspectiveCamera
+  +controls: OrbitControls? ' Ou outro tipo de controle
+  +resize()
+  +update()
+}
+
+class Renderer {
+  +instance: THREE.WebGLRenderer
+  +resize()
+  +update() ' Render loop
+}
+
+class World {
+  +environment: Environment
+  +player: Player?
+  +enemies: Enemy[]
+  +addObject(object)
+  +update()
+}
+
+class Environment {
+  +sunLight: THREE.DirectionalLight
+  +ambientLight: THREE.AmbientLight
+  +environmentMap: object ' Textura de ambiente
+}
+
+' Utilitários do Core
+class Time <<EventEmitter>> {
+  +tick() ' Chamado no loop principal
+  +on(event, callback)
+  +off(event, callback)
+  +trigger(event, data)
+}
+class Sizes <<EventEmitter>> {
+  +width: number
+  +height: number
+  +pixelRatio: number
+  +resize()
+}
+class Resources <<EventEmitter>> {
+  +items: object ' Assets carregados
+  +load(sources)
+  +lazyLoad(asset) ' Adicionado para lazy loading
+  +on(event, callback)
+  +off(event, callback)
+  +trigger(event, data)
+}
+
+' Gerenciadores de Lógica de Jogo
+class GameManager {
+  +score: number
+  +gameState: string ' (playing, paused, gameover)
+  +startGame()
+  +endGame()
+  +updateScore(points)
+  +stateMachine: StateMachine ' Adicionado para gerenciamento de estados
+}
+class InputManager <<EventEmitter>> {
+  +setupEventListeners()
+  +on(event, callback) ' Ex: 'keydown', 'pointermove'
+  +trigger(event, data)
+}
+class UIManager {
+  +updateScoreDisplay(score)
+  +showGameOverScreen()
+}
+class AudioManager {
+    +playSound(soundName)
+    +playMusic(trackName)
+}
+
+' Componentes/Entidades do Jogo
+abstract class BaseEntity {
+  +mesh: THREE.Object3D
+  +update(deltaTime)
+}
+class Player extends BaseEntity {
+  +handleInput(inputData)
+  +update()
+}
+class Enemy extends BaseEntity {
+  +aiBehavior: AIBehavior
+  +update()
+}
+
+' --- Relacionamentos ---
+
+' Experience orquestra o Core
+Experience o--> Camera
+Experience o--> Renderer
+Experience o--> World
+Experience o--> Time
+Experience o--> Sizes
+Experience o--> Resources
+Experience o--> Config
+
+' Core usa dependências
+Renderer ..> Experience : "needs scene & camera"
+World ..> Resources : "needs loaded assets"
+World ..> Time : "needs delta time for updates"
+World o--> Environment
+World "1" *-- "0..1" Player : "contains"
+World "1" *-- "0..*" Enemy : "contains"
+
+' Managers interagem com o Core e Entidades (idealmente via eventos ou injeção de dependência)
+GameManager ..> UIManager : "updates UI"
+GameManager ..> Experience : "may control game state (pause/resume)"
+InputManager ..> Player : "notifies player (via events)"
+Player ..> InputManager : "listens for input events" ' Relação pode ser indireta via EventEmitter
+
+' Entidades são adicionadas ao mundo/cena
+World ..> BaseEntity : "adds entities to scene"
+
+' Recursos são usados por componentes do mundo
+Environment ..> Resources : "uses textures/maps"
+BaseEntity ..> Resources : "uses models/textures"
+
+' Utilitários são usados por muitos
+Experience ..> Time
+Experience ..> Sizes
+Experience ..> Resources
+World ..> Time
+BaseEntity ..> Time
+
+' Managers podem usar utilitários como EventEmitter
+InputManager ..> EventEmitter : "inherits or composes"
+Time ..> EventEmitter
+Sizes ..> EventEmitter
+Resources ..> EventEmitter
+
+' Novas classes adicionadas
+class Config {
+  +constants: object ' Centraliza constantes do jogo
+}
+class StateMachine {
+  +currentState: string
+  +transition(toState)
+}
+class AIBehavior {
+  +execute(enemy: Enemy)
+}
+
+' --- Notas sobre Boas Práticas ---
+note right of Experience
+  **Injeção de Dependência:**
+  Experience pode criar instâncias
+  dos seus componentes (Camera, Renderer, etc.)
+  e passá-las conforme necessário,
+  evitando singletons globais.
+end note
+
+note left of InputManager
+  **Baixo Acoplamento:**
+  InputManager não deve chamar
+  métodos diretamente em Player.
+  Use um sistema de eventos (EventEmitter)
+  para que Player se inscreva
+  nos eventos de input que lhe interessam.
+end note
+
+note bottom of BaseEntity
+  **SOLID:**
+  - **SRP:** Cada classe tem uma responsabilidade clara.
+  - **OCP:** Pode-se adicionar novos tipos de inimigos
+    (Enemy subclasses) sem modificar World ou GameManager.
+  - **LSP:** Subclasses de BaseEntity devem ser substituíveis.
+  - **ISP:** Interfaces (aqui, mais conceitual) devem ser específicas.
+  - **DIP:** Módulos de alto nível (GameManager) não devem
+    depender diretamente de baixo nível (Player), mas de
+    abstrações ou eventos.
+end note
+
+note top of Resources
+  **Otimização de Recursos:**
+  Implementar lazy loading para carregar
+  assets sob demanda, melhorando o desempenho.
+end note
+
+note right of GameManager
+  **Gerenciamento de Estado:**
+  Usar uma máquina de estados para transições
+  mais robustas entre diferentes estados do jogo.
+end note
+
+note left of Enemy
+  **Padrão Strategy:**
+  Usar AIBehavior para permitir diferentes
+  comportamentos de IA sem modificar a classe Enemy.
+end note
+
+@enduml
