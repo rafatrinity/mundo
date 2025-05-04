@@ -1,23 +1,27 @@
-@startuml ArquiteturaThreeJSJogo
+@startuml Arquitetura Cliente - Projeto Mundo
 
 !theme materia
 
-' Classes Principais de Orquestração e Core Three.js
+' ----- Core Three.js & Orquestração -----
 class Experience {
   +camera: Camera
   +renderer: Renderer
-  +world: World
   +scene: THREE.Scene
+  +world: World
   +time: Time
   +sizes: Sizes
   +resources: Resources
   +config: Config
-  +update()
+  +inputManager: InputManager
+  +networkManager: NetworkManager
+  +uiManager: UIManager
+  +audioManager: AudioManager ' Opcional, mas comum
+  +update() ' Main loop tick
 }
 
 class Camera {
   +instance: THREE.PerspectiveCamera
-  +controls: OrbitControls? ' Ou outro tipo de controle
+  +controls: OrbitControls | PointerLockControls | DeviceOrientationControls ' Controles variados
   +resize()
   +update()
 }
@@ -25,85 +29,116 @@ class Camera {
 class Renderer {
   +instance: THREE.WebGLRenderer
   +resize()
-  +update() ' Render loop
+  +update() ' Render frame
 }
 
 class World {
-  +environment: Environment
-  +player: Player?
-  +enemies: Enemy[]
-  +addObject(object)
-  +update()
+  +experience: Experience ' Referência para acesso a outros módulos
+  +environment: Environment?
+  +players: Map<playerId, Player> ' Coleção de jogadores (locais e remotos)
+  +staticObjects: THREE.Object3D[] ' Objetos do cenário
+  +interactiveObjects: Map<objectId, InteractiveObject>
+  +initWorld()
+  +addPlayer(playerData, isLocal)
+  +removePlayer(playerId)
+  +updatePlayer(playerId, state)
+  +update() ' Atualiza entidades do mundo
+  +loadChunk(coords) ' Para streaming/mundo aberto
+  +unloadChunk(coords) ' Para streaming/mundo aberto
 }
 
 class Environment {
   +sunLight: THREE.DirectionalLight
   +ambientLight: THREE.AmbientLight
-  +environmentMap: object ' Textura de ambiente
+  +environmentMap: object ' Textura de ambiente (HDR/EXR)
+  +load()
 }
 
-' Utilitários do Core
+' ----- Utilitários Core -----
 class Time <<EventEmitter>> {
-  +tick() ' Chamado no loop principal
+  +start: number
+  +current: number
+  +elapsed: number
+  +delta: number
+  +tick()
   +on(event, callback)
-  +off(event, callback)
-  +trigger(event, data)
 }
 class Sizes <<EventEmitter>> {
   +width: number
   +height: number
   +pixelRatio: number
+  +aspectRatio: number
   +resize()
+  +on(event, callback)
 }
 class Resources <<EventEmitter>> {
-  +items: object ' Assets carregados
-  +load(sources)
-  +lazyLoad(asset) ' Adicionado para lazy loading
-  +on(event, callback)
-  +off(event, callback)
-  +trigger(event, data)
+  +items: object ' Assets carregados (modelos, texturas, etc.)
+  +toLoad: number
+  +loaded: number
+  +load(sources) ' Carrega lista inicial de assets
+  +lazyLoad(asset) ' Carrega assets sob demanda (mundo aberto)
+  +on(event, callback) ' 'ready', 'progress', 'assetLoaded'
+}
+class Config {
+  +debug: boolean
+  +worldSize: number
+  +playerSettings: object
+  +networkSettings: object
 }
 
-' Gerenciadores de Lógica de Jogo
-class GameManager {
-  +score: number
-  +gameState: string ' (playing, paused, gameover)
-  +startGame()
-  +endGame()
-  +updateScore(points)
-  +stateMachine: StateMachine ' Adicionado para gerenciamento de estados
-}
+' ----- Gerenciadores de Lógica -----
 class InputManager <<EventEmitter>> {
-  +setupEventListeners()
-  +on(event, callback) ' Ex: 'keydown', 'pointermove'
-  +trigger(event, data)
-}
-class UIManager {
-  +updateScoreDisplay(score)
-  +showGameOverScreen()
-}
-class AudioManager {
-    +playSound(soundName)
-    +playMusic(trackName)
+  +setupEventListeners() ' Teclado, Mouse, Touch, Gamepad, Sensores (Giroscópio, Acelerômetro, Bússola)
+  +processInput() ' Normaliza e dispara eventos de ação
+  +on(event, callback) ' Ex: 'action:move', 'action:look', 'action:jump', 'action:interact'
+  +trigger(event, data) ' Dispara ações normalizadas
 }
 
-' Componentes/Entidades do Jogo
+class NetworkManager <<EventEmitter>> {
+  +socket: WebSocket | WebRTC ' Instância da conexão
+  +connect(url)
+  +disconnect()
+  +send(type, payload) ' Envia dados ao servidor (ex: input local, posição)
+  +handleMessage(message) ' Processa mensagens do servidor
+  +on(event, callback) ' 'connected', 'disconnected', 'playerJoined', 'playerLeft', 'worldState', 'entityUpdate'
+}
+
+class UIManager {
+  +hudElement: HTMLElement ' Elemento DOM para o HUD
+  +updatePlayerList(players)
+  +displayChatMessage(message)
+  +showInteractionPrompt(show)
+  +updateStatus(status) ' Ex: Conectado, Carregando...
+}
+
+class AudioManager {
+    +playSound(soundName, position?) ' Sons 3D posicionais
+    +playMusic(trackName)
+    +setListener(camera) ' Para áudio posicional
+}
+
+' ----- Entidades do Mundo -----
 abstract class BaseEntity {
+  +id: string | number
   +mesh: THREE.Object3D
   +update(deltaTime)
 }
+
 class Player extends BaseEntity {
-  +handleInput(inputData)
-  +update()
-}
-class Enemy extends BaseEntity {
-  +aiBehavior: AIBehavior
-  +update()
+  +isLocalPlayer: boolean
+  +state: object ' Posição, rotação, etc. (recebido do servidor para remotos)
+  +update(deltaTime) ' Interpola/Extrapola movimento para jogadores remotos
+  +applyLocalInput(inputActions) ' Apenas para jogador local
 }
 
-' --- Relacionamentos ---
+class InteractiveObject extends BaseEntity {
+    +interactionType: string ' 'collect', 'activate', 'open'
+    +onInteraction(player)
+}
 
-' Experience orquestra o Core
+' ----- Relacionamentos -----
+
+' Experience orquestra tudo
 Experience o--> Camera
 Experience o--> Renderer
 Experience o--> World
@@ -111,27 +146,38 @@ Experience o--> Time
 Experience o--> Sizes
 Experience o--> Resources
 Experience o--> Config
+Experience o--> InputManager
+Experience o--> NetworkManager
+Experience o--> UIManager
+Experience o--> AudioManager
 
-' Core usa dependências
+' Componentes Core interagem
 Renderer ..> Experience : "needs scene & camera"
-World ..> Resources : "needs loaded assets"
-World ..> Time : "needs delta time for updates"
 World o--> Environment
-World "1" *-- "0..1" Player : "contains"
-World "1" *-- "0..*" Enemy : "contains"
+World "1" *-- "0..*" Player : "manages"
+World "1" *-- "0..*" InteractiveObject : "manages"
+World ..> Resources : "requests assets"
+World ..> Time : "uses delta time"
+World ..> Experience : "accesses other modules"
 
-' Managers interagem com o Core e Entidades (idealmente via eventos ou injeção de dependência)
-GameManager ..> UIManager : "updates UI"
-GameManager ..> Experience : "may control game state (pause/resume)"
-InputManager ..> Player : "notifies player (via events)"
-Player ..> InputManager : "listens for input events" ' Relação pode ser indireta via EventEmitter
+' Gerenciadores interagem com Core, Mundo e entre si (idealmente via eventos)
+InputManager ..> Experience : "listens to DOM events via Sizes"
+InputManager ..> Player : "(Local) Player listens for 'action:*' events"
+NetworkManager ..> World : "updates world based on server messages (add/remove/update players/objects)"
+NetworkManager ..> Player : "sends local player state"
+NetworkManager ..> UIManager : "updates UI based on network events (connect/disconnect)"
+World ..> NetworkManager : "notifies NetworkManager of local interactions to send"
+UIManager ..> World : "may query world state for display"
+AudioManager ..> Camera : "uses camera as listener"
 
-' Entidades são adicionadas ao mundo/cena
+' Entidades são parte do Mundo
 World ..> BaseEntity : "adds entities to scene"
+Player ..> BaseEntity
+InteractiveObject ..> BaseEntity
 
-' Recursos são usados por componentes do mundo
-Environment ..> Resources : "uses textures/maps"
-BaseEntity ..> Resources : "uses models/textures"
+' Recursos são usados por muitos
+Environment ..> Resources
+BaseEntity ..> Resources
 
 ' Utilitários são usados por muitos
 Experience ..> Time
@@ -140,70 +186,54 @@ Experience ..> Resources
 World ..> Time
 BaseEntity ..> Time
 
-' Managers podem usar utilitários como EventEmitter
-InputManager ..> EventEmitter : "inherits or composes"
-Time ..> EventEmitter
-Sizes ..> EventEmitter
-Resources ..> EventEmitter
+' ----- Notas Específicas do Projeto Mundo -----
 
-' Novas classes adicionadas
-class Config {
-  +constants: object ' Centraliza constantes do jogo
-}
-class StateMachine {
-  +currentState: string
-  +transition(toState)
-}
-class AIBehavior {
-  +execute(enemy: Enemy)
-}
-
-' --- Notas sobre Boas Práticas ---
 note right of Experience
-  **Injeção de Dependência:**
-  Experience pode criar instâncias
-  dos seus componentes (Camera, Renderer, etc.)
-  e passá-las conforme necessário,
-  evitando singletons globais.
+  **Arquitetura Cliente-Servidor:**
+  Este diagrama representa o **cliente**.
+  A lógica de jogo autoritativa, física,
+  validação e persistência residem no **servidor**
+  (não mostrado aqui).
 end note
 
-note left of InputManager
-  **Baixo Acoplamento:**
-  InputManager não deve chamar
-  métodos diretamente em Player.
-  Use um sistema de eventos (EventEmitter)
-  para que Player se inscreva
-  nos eventos de input que lhe interessam.
+note left of NetworkManager
+  **Sincronização de Estado:**
+  NetworkManager recebe atualizações do servidor
+  e as repassa para `World` atualizar os `Player` remotos
+  e outros objetos sincronizados. O `Player` local envia
+  seu input/estado para o servidor via NetworkManager.
 end note
 
-note bottom of BaseEntity
-  **SOLID:**
-  - **SRP:** Cada classe tem uma responsabilidade clara.
-  - **OCP:** Pode-se adicionar novos tipos de inimigos
-    (Enemy subclasses) sem modificar World ou GameManager.
-  - **LSP:** Subclasses de BaseEntity devem ser substituíveis.
-  - **ISP:** Interfaces (aqui, mais conceitual) devem ser específicas.
-  - **DIP:** Módulos de alto nível (GameManager) não devem
-    depender diretamente de baixo nível (Player), mas de
-    abstrações ou eventos.
+note bottom of World
+  **Mundo Aberto / Streaming:**
+  `World` é responsável por carregar/descarregar
+  partes do cenário (`loadChunk`/`unloadChunk`)
+  e solicitar assets via `Resources.lazyLoad`
+  conforme o jogador se move, para gerenciar
+  memória e performance.
 end note
 
 note top of Resources
-  **Otimização de Recursos:**
-  Implementar lazy loading para carregar
-  assets sob demanda, melhorando o desempenho.
+  **Gerenciamento de Assets:**
+  `Resources.lazyLoad` é crucial para
+  carregar assets de forma assíncrona
+  e sob demanda, essencial para mundos grandes.
 end note
 
-note right of GameManager
-  **Gerenciamento de Estado:**
-  Usar uma máquina de estados para transições
-  mais robustas entre diferentes estados do jogo.
+note left of InputManager
+  **Abstração de Input:**
+  InputManager captura inputs brutos (teclado,
+  mouse, touch, gamepad, **sensores**) e dispara
+  eventos de **ação** normalizados (ex: 'action:move').
+  O `Player` local escuta essas ações.
 end note
 
-note left of Enemy
-  **Padrão Strategy:**
-  Usar AIBehavior para permitir diferentes
-  comportamentos de IA sem modificar a classe Enemy.
+note right of Player
+  **Representação do Jogador:**
+  A classe `Player` representa tanto o jogador
+  local quanto os remotos. A lógica de `update`
+  difere: local aplica input, remoto interpola
+  dados recebidos do servidor via `NetworkManager` -> `World`.
 end note
 
 @enduml
