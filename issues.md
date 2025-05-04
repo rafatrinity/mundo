@@ -199,7 +199,7 @@ Esta lista organiza as issues do projeto com subtarefas (checklists) e comentár
 
 *Descrição:* Desenvolver um protótipo do mundo de teste, com um ambiente amplo para validação dos sistemas de movimentação e interação.
 
-- [ ] **Criação do Chão:** Implementar um plano gigante utilizando THREE.PlaneGeometry para simular o chão.  
+- [ ] **Criação do Mundo:** Implementar uma esfera gigante, essa esfera deverá ser gigante, tão grande que pareça como um plano na visão do jogador, deverá ter escala planetaria.  
 - [ ] **Marcadores Visuais:** Adicionar cubos ou outros marcadores que ajudem a definir a escala e facilitam os testes de movimentação.  
 - [ ] **Integração Inicial:** Garantir que a movimentação do jogador seja testável neste ambiente.  
 - [ ] **Documentação para Atualizações:** Anotar potenciais melhorias e escalabilidade para futuras implementações.
@@ -211,10 +211,10 @@ Esta lista organiza as issues do projeto com subtarefas (checklists) e comentár
 *Descrição:* Pesquisar e definir abordagens para implementar um mapa grande, considerando técnicas como tiles, chunks, streaming ou geração procedural.  
 *Dependências:* Essencial para otimização e escalabilidade (ligação com Issue #16).
 
-- [ ] **Pesquisa de Abordagens:** Investigar técnicas (tiles, chunks, streaming, procedural) para carregamento de mapas grandes.  
-- [ ] **Avaliação de Trade-offs:** Analisar performance, uso de memória e tempos de carregamento para cada abordagem.  
-- [ ] **Seleção da Estratégia:** Escolher a solução mais viável para o projeto com base na avaliação.  
-- [ ] **Documentação Técnica:** Registrar a decisão, justificativas e requisitos para a implementação.
+- [x] **Pesquisa de Abordagens:** Investigar técnicas (tiles, chunks, streaming, procedural) para carregamento de mapas grandes.  
+- [x] **Avaliação de Trade-offs:** Analisar performance, uso de memória e tempos de carregamento para cada abordagem.  
+- [x] **Seleção da Estratégia:** Escolher a solução mais viável para o projeto com base na avaliação.  
+- [x] **Documentação Técnica:** Registrar a decisão, justificativas e requisitos para a implementação.
 
 ---
 
@@ -222,7 +222,7 @@ Esta lista organiza as issues do projeto com subtarefas (checklists) e comentár
 
 *Descrição:* Configurar a base do projeto utilizando Vite e Three.js, garantindo a operacionalidade inicial da cena, câmera e renderizador.
 
-- [ ] **Setup Inicial:** Configurar o template Vite integrado com Three.js.  
-- [ ] **Limpeza do Boilerplate:** Remover códigos não utilizados e estabelecer padrões iniciais de organização.  
-- [ ] **Validação dos Elementos Básicos:** Confirmar que a cena, a câmera e o renderer estão funcionando corretamente.  
-- [ ] **Documentação do Projeto:** Estabelecer diretrizes de arquitetura e organização para futuras implementações.
+- [x] **Setup Inicial:** Configurar o template Vite integrado com Three.js.  
+- [x] **Limpeza do Boilerplate:** Remover códigos não utilizados e estabelecer padrões iniciais de organização.  
+- [x] **Validação dos Elementos Básicos:** Confirmar que a cena, a câmera e o renderer estão funcionando corretamente.  
+- [x] **Documentação do Projeto:** Estabelecer diretrizes de arquitetura e organização para futuras implementações.
