@@ -28,80 +28,83 @@ A organização do projeto busca clareza, modularidade e facilidade de manutenç
 ## Dependências e Instalação
 
 ### Pré-requisitos
-
 - **Node.js** (Verifique a versão recomendada no `package.json` ou use LTS)
 - **npm** ou **yarn** como gerenciador de pacotes
 
 ### Passos para Instalação (Frontend)
-
 1. Clone o repositório:
-
    ```bash
    git clone https://github.com/rafatrinity/mundo.git
    ```
-
 2. Navegue até o diretório do projeto:
-
    ```bash
-   cd seu-repositorio
+   cd mundo
    ```
-
 3. Instale as dependências:
-
    ```bash
    npm install
+   # ou
+   # yarn install
    ```
+
+*(Nota: Se houver um backend separado, siga as instruções de instalação dele também.)*
 
 ## Execução do Projeto
 
-### Modo Desenvolvimento
-
-Para iniciar o projeto em modo de desenvolvimento com hot-reload:
-
+### Modo Desenvolvimento (Frontend)
+Para iniciar o servidor de desenvolvimento Vite com hot-reload:
 ```bash
 npm run dev
+# ou
+# yarn dev
 ```
+Acesse a aplicação no endereço fornecido pelo Vite (geralmente algo como `http://localhost:5173`, mas verifique a saída do terminal).
 
-Acesse a aplicação em `http://localhost:3000`.
-
-### Modo Produção
-
-Para criar uma versão otimizada e servi-la:
-
+### Modo Produção (Frontend)
+Para criar uma versão otimizada para deploy:
 1. Gere o build:
-
    ```bash
    npm run build
+   # ou
+   # yarn build
    ```
-
-2. Sirva o projeto:
-
+   Os arquivos otimizados estarão na pasta `dist/`.
+2. Para testar o build localmente (simulando um servidor de produção):
    ```bash
-   npm run serve
+   npm run preview
+   # ou
+   # yarn preview
    ```
+   Acesse no endereço fornecido pelo Vite.
 
-## Funcionalidades Principais
+*(Nota: Para a funcionalidade multiplayer completa, o servidor backend também precisa estar em execução.)*
 
-- **Experience**: Orquestra os elementos principais da cena 3D, como câmera, renderer e o mundo do jogo.
-- **World**: Define o ambiente tridimensional, incluindo o jogador, inimigos e objetos interativos.
-- **Player**: Entidade controlada pelo usuário, com suporte a movimentação e interações.
-- **Enemy**: Inimigos com comportamentos básicos de inteligência artificial.
-- **Managers**: Controlam aspectos como estado do jogo, entrada de comandos (inputs), interface de usuário (UI) e áudio.
+## Funcionalidades Planejadas / Principais
 
-*(Dica: Adicione capturas de tela ou GIFs do jogo em ação para enriquecer esta seção!)*
+O desenvolvimento está organizado em torno das seguintes funcionalidades chave (veja as [Issues](https://github.com/rafatrinity/mundo/issues) para detalhes e progresso):
+
+- **Mundo Vasto e Explorável**: Implementação de um mapa grande, utilizando estratégias eficientes de carregamento/streaming (ex: chunks, tiles) para otimização web.
+- **Multiplayer em Tempo Real**: Conexão de múltiplos jogadores via WebSockets (ou tecnologia similar), com sincronização de posição, rotação e interações básicas.
+- **Avatar do Jogador**: Representação 3D do jogador na cena, com movimentação controlada pelo usuário.
+- **Controles Flexíveis**: Suporte a múltiplos métodos de entrada: teclado/mouse, toque (mobile), gamepad e exploração do uso de sensores de dispositivos móveis (giroscópio, acelerômetro, bússola).
+- **Interface de Usuário (HUD)**: Exibição de informações relevantes na tela (lista de jogadores, chat básico, status, etc.) usando HTML/CSS sobreposto ao canvas 3D.
+- **Otimização Web**: Foco contínuo em performance (análise de gargalos, LOD para avatares, carregamento eficiente de assets) para garantir uma experiência fluida no navegador.
+- **Interação com o Mundo**: Adição gradual de elementos no ambiente com os quais os jogadores possam interagir.
+
+*(Dica: Adicione capturas de tela ou GIFs do projeto em desenvolvimento aqui para enriquecer esta seção!)*
 
 ## Contribuição
 
-Gostaria de ajudar a melhorar o projeto? Aqui estão algumas orientações:
+Interessado em contribuir para o "Mundo"? Ótimo!
 
-- **Reportar Problemas**: Abra uma *issue* no GitHub para relatar bugs ou sugerir novas funcionalidades.
+- **Reportar Problemas**: Encontrou um bug ou tem uma ideia? Abra uma [Issue](https://github.com/rafatrinity/mundo/issues).
 - **Enviar Pull Requests**:
-  1. Faça um fork do repositório.
-  2. Crie uma branch para sua alteração (`git checkout -b minha-alteracao`).
-  3. Adicione testes, se aplicável, e siga o estilo de código existente.
-  4. Envie um *pull request* com uma descrição clara das mudanças.
-- **Estilo de Código**: Utilizamos ESLint para manter a consistência. Execute `npm run lint` antes de submeter alterações.
+  1. Faça um fork do repositório `rafatrinity/mundo`.
+  2. Crie uma branch para sua funcionalidade ou correção (ex: `git checkout -b feature/nova-interacao` ou `fix/bug-movimento`).
+  3. Faça suas alterações e commit (`git commit -m 'feat: Adiciona interação X'`).
+  4. Garanta que o código segue os padrões (use `npm run lint` se configurado).
+  5. Envie um *Pull Request* para a branch principal (`main` ou `master`) do repositório original com uma descrição clara do que foi feito.
 
 ## Licença
 
-Este projeto está licenciado sob a [Licença MIT](LICENSE). Sinta-se à vontade para usar, modificar e distribuir, desde que a licença seja incluída.
+Este projeto está licenciado sob a [Licença MIT](LICENSE). (Certifique-se de ter um arquivo `LICENSE` no seu repositório contendo o texto da licença MIT).
