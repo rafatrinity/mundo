@@ -11,6 +11,12 @@
   <body>
     <!-- O Canvas onde a cena 3D será renderizada -->
     <canvas id="webgl"></canvas>
+
+    <!-- Contêiner para o Joystick -->
+    <div id="joystick-container" style="position: absolute; bottom: 50px; left: 50px; width: 150px; height: 150px; display: none; z-index: 20;">
+        <!-- NippleJS irá popular este div -->
+    </div>
+
     <!-- O ponto de entrada do nosso código TypeScript -->
     <script type="module" src="/src/main.ts"></script>
   </body>

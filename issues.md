@@ -177,10 +177,10 @@ Esta lista organiza as issues do projeto com subtarefas (checklists) e comentár
 
 *Descrição:* Permitir a movimentação do jogador e controle da câmera utilizando teclado (WASD ou setas) e mouse.
 
-- [ ] **Implementação de Movimentação:** Codificar a lógica de movimentação usando as teclas WASD ou setas.  
-- [ ] **Controle de Câmera:** Integrar o uso do mouse para rotação e direcionamento da câmera, possibilitando uma visão livre.  
-- [ ] **Integração com Mundo Básico:** Garantir que o movimento se integre com o cenário criado na Issue #3.  
-- [ ] **Testes e Ajustes:** Validar a responsividade e ajustar a sensibilidade dos controles.
+- [x] **Implementação de Movimentação:** Codificar a lógica de movimentação usando as teclas WASD ou setas.  
+- [x] **Controle de Câmera:** Integrar o uso do mouse para rotação e direcionamento da câmera, possibilitando uma visão livre.  
+- [x] **Integração com Mundo Básico:** Garantir que o movimento se integre com o cenário criado na Issue #3.  
+- [x] **Testes e Ajustes:** Validar a responsividade e ajustar a sensibilidade dos controles.
 
 ---
 
@@ -188,10 +188,10 @@ Esta lista organiza as issues do projeto com subtarefas (checklists) e comentár
 
 *Descrição:* Adicionar um avatar 3D simples para cada jogador, utilizando objetos primitivos ou modelos leves (GLTF/GLB).
 
-- [ ] **Seleção ou Criação do Modelo:** Escolher entre um modelo básico (ex.: BoxGeometry, SphereGeometry) ou importar um modelo simples.  
-- [ ] **Posicionamento Inicial:** Definir e aplicar o ponto inicial do avatar no mundo, conforme a estrutura definida na Issue #3.  
-- [ ] **Integração com Sistemas de Movimento:** Conectar o avatar ao sistema de input e sincronização de movimentação.  
-- [ ] **Teste Visual:** Validar que o avatar seja exibido corretamente e responda às interações.
+- [x] **Seleção ou Criação do Modelo:** Escolher entre um modelo básico (ex.: BoxGeometry, SphereGeometry) ou importar um modelo simples.  
+- [x] **Posicionamento Inicial:** Definir e aplicar o ponto inicial do avatar no mundo, conforme a estrutura definida na Issue #3.  
+- [x] **Integração com Sistemas de Movimento:** Conectar o avatar ao sistema de input e sincronização de movimentação.  
+- [x] **Teste Visual:** Validar que o avatar seja exibido corretamente e responda às interações.
 
 ---
 
@@ -199,10 +199,10 @@ Esta lista organiza as issues do projeto com subtarefas (checklists) e comentár
 
 *Descrição:* Desenvolver um protótipo do mundo de teste, com um ambiente amplo para validação dos sistemas de movimentação e interação.
 
-- [ ] **Criação do Mundo:** Implementar uma esfera gigante, essa esfera deverá ser gigante, tão grande que pareça como um plano na visão do jogador, deverá ter escala planetaria.  
-- [ ] **Marcadores Visuais:** Adicionar cubos ou outros marcadores que ajudem a definir a escala e facilitam os testes de movimentação.  
-- [ ] **Integração Inicial:** Garantir que a movimentação do jogador seja testável neste ambiente.  
-- [ ] **Documentação para Atualizações:** Anotar potenciais melhorias e escalabilidade para futuras implementações.
+- [x] **Criação do Mundo:** Implementar uma esfera gigante, essa esfera deverá ser gigante, tão grande que pareça como um plano na visão do jogador, deverá ter escala planetaria.  
+- [x] **Marcadores Visuais:** Adicionar cubos ou outros marcadores que ajudem a definir a escala e facilitam os testes de movimentação.  
+- [x] **Integração Inicial:** Garantir que a movimentação do jogador seja testável neste ambiente.  
+- [x] **Documentação para Atualizações:** Anotar potenciais melhorias e escalabilidade para futuras implementações.
 
 ---
 
